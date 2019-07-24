@@ -1,5 +1,5 @@
 module Fastlane
   module Appcenter
-    VERSION = "0.1.7"
+    VERSION = "1.2.0"
   end
 end

@@ -16,16 +16,50 @@ lane :test_autocreation do
   )
 end
 
+lane :test_autocreation_without_prompts do
+  # app should be autocreated if not found, without asking user
+  appcenter_upload(
+    api_token: ENV["TEST_APPCENTER_API_TOKEN"],
+    owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
+    app_name: "my-new-app-center-app",
+    app_display_name: "My New App Center App",
+    app_os: "Android",
+    app_platform: "Java",
+    apk: "./fastlane/app-release.apk"
+  )
+end
+
 lane :test_release_notes do
   appcenter_upload(
     api_token: ENV["TEST_APPCENTER_API_TOKEN"],
     owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
     app_name: "MyApplication-01",
     ipa: "./fastlane/app-release.ipa",
-    group: ENV["TEST_APPCENTER_DISTRIBUTE_GROUP"],
+    destinations: ENV["TEST_APPCENTER_DISTRIBUTE_GROUP"],
+    destination_type: "group",
     release_notes: sh("cat ./test_CHANGELOG.md"),
-    release_notes_clipping: false,
+    should_clip: false,
     release_notes_link: "https://raw.githubusercontent.com/Microsoft/fastlane-plugin-appcenter/master/README.md"
+  )
+end
+
+lane :test_group_names do
+  appcenter_upload(
+    api_token: ENV["TEST_APPCENTER_API_TOKEN"],
+    owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
+    app_name: "MyApplication",
+    apk: "./fastlane/app-release.apk",
+    destinations: "Group%20with%20space",
+    destination_type: "group"
+  )
+
+  appcenter_upload(
+    api_token: ENV["TEST_APPCENTER_API_TOKEN"],
+    owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
+    app_name: "MyApplication",
+    apk: "./fastlane/app-release.apk",
+    destinations: "Group with space",
+    destination_type: "group"
   )
 end
 
@@ -49,7 +83,8 @@ lane :test do
     owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
     app_name: "MyApplication-01",
     ipa: "./fastlane/app-release.ipa",
-    group: ENV["TEST_APPCENTER_DISTRIBUTE_GROUP"],
+    destinations: ENV["TEST_APPCENTER_DISTRIBUTE_GROUP"],
+    destination_type: "group",
     release_notes: ENV["TEST_APPCENTER_DISTRIBUTE_RELEASE_NOTES"]
   )
 
@@ -71,6 +106,56 @@ lane :test do
     owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
     app_name: "MyApplication",
     apk: "./fastlane/app-release.apk",
-    group: ENV["TEST_APPCENTER_DISTRIBUTE_GROUPS"]
+    destinations: ENV["TEST_APPCENTER_DISTRIBUTE_GROUPS"],
+    destination_type: "group"
+  )
+
+  UI.message("\n\n\n=====================================\n uploading to store \n=====================================")
+
+  appcenter_upload(
+    api_token: ENV["TEST_APPCENTER_API_TOKEN"],
+    owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
+    app_name: "MyApplication",
+    apk: "./fastlane/app-release.apk",
+    destinations: ENV["TEST_APPCENTER_DISTRIBUTE_STORE"],
+    destination_type: "store"
+  )
+
+  UI.message("\n\n\n=====================================\n uploading mandatory release \n=====================================")
+
+  appcenter_upload(
+    api_token: ENV["TEST_APPCENTER_API_TOKEN"],
+    owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
+    app_name: "MyApplication",
+    apk: "./fastlane/app-release.apk",
+    destinations: ENV["TEST_APPCENTER_DISTRIBUTE_GROUP"],
+    destination_type: "group",
+    mandatory_update: true
+  )
+
+  UI.message("\n\n\n=====================================\n uploading release with email notification \n=====================================")
+
+  appcenter_upload(
+    api_token: ENV["TEST_APPCENTER_API_TOKEN"],
+    owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
+    app_name: "MyApplication",
+    apk: "./fastlane/app-release.apk",
+    destinations: ENV["TEST_APPCENTER_DISTRIBUTE_GROUP"],
+    destination_type: "group",
+    notify_testers: true
+  )
+
+  UI.message("\n\n\n=====================================\n uploading only proguard mapping.txt \n=====================================")
+
+  appcenter_upload(
+    api_token: ENV["TEST_APPCENTER_API_TOKEN"],
+    owner_name: ENV["TEST_APPCENTER_OWNER_NAME"],
+    app_name: "MyApplication",
+    apk: "./fastlane/app-release.apk",
+    upload_mapping_only: true,
+    build_number: "3",
+    version: "1.0.0",
+    mapping: "./fastlane/mapping.txt",
+    notify_testers: false
   )
 end
